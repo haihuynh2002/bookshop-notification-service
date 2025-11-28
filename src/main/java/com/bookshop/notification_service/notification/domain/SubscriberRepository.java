@@ -8,6 +8,6 @@ import reactor.core.publisher.Mono;
 public interface SubscriberRepository extends ReactiveCrudRepository<Subscriber, Long> {
     Flux<Subscriber> findByActiveTrue();
     Mono<Subscriber> findByEmail(String email);
-    @Query("UPDATE subscribers SET active = false, unsubscribed_at = NOW() WHERE email = :email")
+    @Query("UPDATE subscriber SET active = false, unsubscribed_at = NOW() WHERE email = :email")
     Mono<Integer> unsubscribeByEmail(String email);
 }

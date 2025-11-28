@@ -21,4 +21,6 @@ public class NewsletterResponse {
     Instant scheduledAt;
     Instant sentAt;
     Instant createdDate;
+    String createdBy;
+    String lastModifiedBy;
 }

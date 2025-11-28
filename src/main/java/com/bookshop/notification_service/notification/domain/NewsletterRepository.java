@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 
 public interface NewsletterRepository extends ReactiveCrudRepository<Newsletter, Long> {
-    @Query("SELECT * FROM newsletters WHERE scheduled_at <= :now AND status = 'SCHEDULED'")
+    @Query("SELECT * FROM newsletter WHERE scheduled_at <= :now AND status = 'SCHEDULED'")
     Flux<Newsletter> findScheduledNewslettersReadyToSend(Instant now);
 
     Mono<Boolean> existsByTitleAndCategory(String title, String category);

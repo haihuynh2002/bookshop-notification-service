@@ -2,10 +2,7 @@ package com.bookshop.notification_service.notification.domain;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.Version;
+import org.springframework.data.annotation.*;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.Instant;
@@ -21,7 +18,7 @@ public class Newsletter {
     Long id;
     String title;
     String content;
-    String category;
+    NewsLetterCategory category;
     NewsletterStatus status;
     Instant scheduledAt;
     Instant sentAt;
@@ -31,6 +28,12 @@ public class Newsletter {
 
     @LastModifiedDate
     Instant lastModifiedDate;
+
+    @CreatedBy
+    String createdBy;
+
+    @LastModifiedBy
+    String lastModifiedBy;
 
     @Version
     int version;

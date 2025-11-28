@@ -3,7 +3,9 @@ package com.bookshop.notification_service.notification.domain;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -22,7 +24,11 @@ public class NewsletterSchedulerService {
     NewsletterSubscriptionRepository subscriptionRepository;
     NotificationService notificationService;
 
-    @Scheduled(fixedRate = 60000) // Run every minute
+    @NonFinal
+    @Value("${application.domain}")
+    private String domain;
+
+    @Scheduled(fixedRate = 60000)
     public void processScheduledNewsletters() {
         newsletterRepository.findScheduledNewslettersReadyToSend(Instant.now())
                 .flatMap(this::sendNewsletterToSubscribers)
@@ -33,17 +39,22 @@ public class NewsletterSchedulerService {
         log.info("Sending newsletter: {}", newsletter.getTitle());
 
         return subscriberRepository.findByActiveTrue()
+                .map(sub -> {
+                    log.info(sub.getEmail());
+                    return sub;
+                })
                 .flatMap(subscriber -> sendNewsletterToSubscriber(newsletter, subscriber))
                 .then(updateNewsletterStatus(newsletter));
     }
 
     private Mono<Void> sendNewsletterToSubscriber(Newsletter newsletter, Subscriber subscriber) {
+        String content = buildMessageContent(newsletter, subscriber);
         var notification = Notification.builder()
                 .firstName(subscriber.getFirstName())
                 .lastName(subscriber.getLastName())
                 .subject(newsletter.getTitle())
                 .email(subscriber.getEmail())
-                .htmlContent(newsletter.getContent())
+                .htmlContent(content)
                 .build();
         return notificationService.sendEmail(notification)
                 .flatMap(response -> createSubscriptionRecord(newsletter, subscriber, true))
@@ -51,6 +62,18 @@ public class NewsletterSchedulerService {
                     log.error("Failed to send newsletter to {}: {}", subscriber.getEmail(), error.getMessage());
                     return createSubscriptionRecord(newsletter, subscriber, false);
                 });
+    }
+
+    private String buildMessageContent(Newsletter newsletter, Subscriber subscriber) {
+        return "<p>Hello " +
+                subscriber.getFirstName() +
+                " " +
+                subscriber.getLastName() +
+                "</p>" +
+                "<p>" + newsletter.getContent() + "</p>" +
+                "<p>To unsubscribe, click " +
+                String.format("<a href='%s/subscribers/email/%s/unsubscribe'>here</a>",
+                        domain, subscriber.getEmail());
     }
 
     private Mono<Void> createSubscriptionRecord(Newsletter newsletter, Subscriber subscriber, Boolean delivered) {

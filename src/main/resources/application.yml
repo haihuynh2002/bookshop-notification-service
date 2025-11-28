@@ -48,3 +48,6 @@ spring:
 brevo:
   uri: https://api.brevo.com
   api-key: ''
+
+application:
+  domain: http://localhost:9000

@@ -4,10 +4,14 @@ import com.bookshop.notification_service.notification.domain.SubscriberService;
 import jakarta.validation.Valid;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("subscribers")
@@ -56,16 +60,13 @@ public class SubscriberController {
         return subscriberService.unsubscribe(id);
     }
 
-    @PostMapping("/email/{email}/unsubscribe")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public Mono<Void> unsubscribeByEmail(@PathVariable String email) {
-        return subscriberService.unsubscribeByEmail(email);
+    @GetMapping("/email/{email}/unsubscribe")
+    public Mono<ResponseEntity> unsubscribeByEmail(@PathVariable String email) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(URI.create("/unsubcribe"));
+        return subscriberService.unsubscribeByEmail(email)
+                .thenReturn(new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY));
     }
-
-//    @GetMapping("/stats")
-//    public Mono<SubscriptionStatsResponse> getSubscriptionStats() {
-//        return subscriberService.getSubscriptionStats();
-//    }
 
     @GetMapping("/{email}/subscribed")
     public Mono<Boolean> isSubscribed(@PathVariable String email) {

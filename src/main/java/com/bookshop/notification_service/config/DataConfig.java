@@ -12,12 +12,12 @@ import org.springframework.security.core.context.SecurityContext;
 @EnableR2dbcAuditing
 public class DataConfig {
 
-//    @Bean
-//    ReactiveAuditorAware<String> auditorAware() {
-//        return () ->
-//                ReactiveSecurityContextHolder.getContext()
-//        .map(SecurityContext::getAuthentication)
-//        .filter(Authentication::isAuthenticated)
-//        .map(Authentication::getName);
-//    }
+    @Bean
+    ReactiveAuditorAware<String> auditorAware() {
+        return () ->
+                ReactiveSecurityContextHolder.getContext()
+        .map(SecurityContext::getAuthentication)
+        .filter(Authentication::isAuthenticated)
+        .map(Authentication::getName);
+    }
 }

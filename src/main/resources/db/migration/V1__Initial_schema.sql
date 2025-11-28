@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS newsletter (
     sent_at TIMESTAMP,
     created_date TIMESTAMP,
     last_modified_date TIMESTAMP,
+    created_by VARCHAR(255) NOT NULL,
+    last_modified_by VARCHAR(255),
     version INT DEFAULT 0
 );
 

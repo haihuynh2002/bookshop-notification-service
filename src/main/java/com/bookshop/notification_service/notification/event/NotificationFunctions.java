@@ -22,7 +22,7 @@ public class NotificationFunctions {
     }
 
     @Bean
-    public Consumer<Flux<DeliveryEvent>> handleDelivery(NotificationService notificationService) {
+    public Consumer<Flux<DeliveryEvent>> handleDeliveryEvent(NotificationService notificationService) {
         return flux -> notificationService.consumeDeliveryEvent(flux)
                 .doOnNext(notification -> log.info("The notification with id {} is created", notification.getId()))
                 .subscribe();

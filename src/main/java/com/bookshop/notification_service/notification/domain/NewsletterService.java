@@ -82,8 +82,10 @@ public class NewsletterService {
     private Mono<Newsletter> createAndSaveNewsletter(NewsletterRequest request) {
         return Mono.fromCallable(() -> {
             Newsletter newsletter = newsletterMapper.toNewsletter(request);
-            if (request.getScheduledAt() != null && request.getScheduledAt().isAfter(Instant.now())) {
-                newsletter.setStatus(NewsletterStatus.SCHEDULED);
+            switch(newsletter.getCategory()){
+                case NewsLetterCategory.IMEDIATION -> buildImediateNewsletter(newsletter);
+                case NewsLetterCategory.SCHEDULING -> buildSchedulingNewsletter(newsletter);
+                default -> throw new RuntimeException("Newsletters types is not exist");
             }
             return newsletter;
         }).flatMap(newsletterRepository::save);
@@ -106,5 +108,16 @@ public class NewsletterService {
         newsletter.setStatus(NewsletterStatus.SCHEDULED);
         newsletter.setScheduledAt(scheduleTime);
         return newsletter;
+    }
+
+    private void buildImediateNewsletter(Newsletter newsletter) {
+        newsletter.setScheduledAt(Instant.now());
+        newsletter.setStatus(NewsletterStatus.SCHEDULED);
+    }
+
+    private void buildSchedulingNewsletter(Newsletter newsletter) {
+        if (newsletter.getScheduledAt() != null && newsletter.getScheduledAt().isAfter(Instant.now())) {
+            newsletter.setStatus(NewsletterStatus.SCHEDULED);
+        }
     }
 }
